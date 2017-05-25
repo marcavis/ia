@@ -18,12 +18,14 @@ public class Main {
 			{0,0,0,0,0,1,0},
 			{0,0,0,0,0,0,1}};
 	private static int tamanhoLetra = 63;
-	private static double[] pesos = new double[tamanhoLetra];
+	private static double[][] pesos = new double[tiposDeLetras][tamanhoLetra];
 	private static double taxa = 0.1;
 
-	public static double[] inicializarPesos(double[] pesos) {
-		for (int i = 0; i < pesos.length; i++) {
-			pesos[i] = 0.0;
+	public static double[][] inicializarPesos(double[][] pesos) {
+		for (int i = 0; i < tiposDeLetras; i++) {
+			for (int j = 0; j < pesos.length; j++) {
+				pesos[i][j] = 0.0;
+			}
 		}
 		return pesos;
 	}
@@ -37,7 +39,7 @@ public class Main {
 		for(int i = 0; i < qtLetras; i++) {
 			double[] z = new double[tamanhoLetra];
 			for(int j = 0; j < tamanhoLetra; j++) {
-				z[j] = letras[i].getAmostras()[j] * pesos[j];
+				z[j] = letras[i].getAmostras()[j] * pesos[i/3][j];
 			}
 			System.out.println(mostraLinha(i+1, z, letras[i].getSaida()));
 		}
