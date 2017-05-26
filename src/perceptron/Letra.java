@@ -5,15 +5,15 @@ import java.io.File;
 import java.io.FileReader;
 
 public class Letra {
-	private String nome;
+	private char nome;
 	private int numero;
 	private char[] caracteres;
 	private int[] amostras;
-	public static double[] pesos;
+	public double[] pesos;
 	//como é representado um resultado no perceptron; por ex., {1,0,0,0,0,0,0} é a letra A
 	private int[] saida;
 	
-	public Letra(String nome, int numero, int[] saida) {
+	public Letra(char nome, int numero, int[] saida) {
 		setNome(nome);
 		setNumero(numero);
 		setSaida(saida);
@@ -46,17 +46,17 @@ public class Letra {
 	}
 	
 	public void inicializarPesos() {
-		Letra.pesos = new double[Main.tamanhoLetra];
+		this.pesos = new double[Main.tamanhoLetra];
 		for (int i = 0; i < Main.tamanhoLetra; i++) {
 			pesos[i] = 0.0;
 		}
 	}
 	
-	public String getNome() {
+	public char getNome() {
 		return nome;
 	}
 	
-	public void setNome(String nome) {
+	public void setNome(char nome) {
 		this.nome = nome;
 	}
 	

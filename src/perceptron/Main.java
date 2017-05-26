@@ -8,7 +8,7 @@ public class Main {
 	private static int variantesDeLetras = 3;
 	private static int qtLetras = tiposDeLetras * variantesDeLetras;
 	private static Letra[] letras = new Letra[tiposDeLetras * variantesDeLetras];
-	private static String[] ordemDeLetras = {"A", "B", "C", "D", "E", "J", "K"};
+	private static char[] ordemDeLetras = {'A', 'B', 'C', 'D', 'E', 'J', 'K'};
 	private static int[][] saida = 
 			{{1,-1,-1,-1,-1,-1,-1},
 			{-1,1,-1,-1,-1,-1,-1},
@@ -18,7 +18,8 @@ public class Main {
 			{-1,-1,-1,-1,-1,1,-1},
 			{-1,-1,-1,-1,-1,-1,1}};
 	public static int tamanhoLetra = 63;
-	private static double taxa = 0.1;
+	private static double taxa = 0.008;
+	private static double bias = 0.000;
 
 	public static double[][] inicializarPesos(double[][] pesos) {
 		for (int i = 0; i < qtLetras; i++) {
@@ -54,38 +55,85 @@ public class Main {
 //		}
 		
 		//for(int i = 0; i < qtLetras; i++) {
-		for(int h = 0; h < tiposDeLetras; h++) {
-			for(int i = 0; i < qtLetras; i++) {
-				//System.out.println(testaLinha(letras[i]));
-				System.out.println("Testando se " + letras[i].getNome() + letras[i].getNumero()
-						+ " é lido como um " + ordemDeLetras[h] + ", resultado = "
-						+ testaLinha(letras[i]) + " , padronizado para " + rede(testaLinha(letras[i]))
-						+ ", esperava-se " + letras[i].getSaida()[h]);
-				System.out.println(mostraLinha(i+1, letras[i], letras[i].getSaida()));
-				//System.out.println(letras[i].getSaida()[h]);
-				if(rede(testaLinha(letras[i])) == letras[i].getSaida()[h]) {
-					//System.out.println("sucesso para letra " + letras[i].getNome() + letras[i].getNumero());
-				} else {
-					//System.out.println("fracasso");
-					for(int j = 0; j < tamanhoLetra; j++) {
-						//Letra.pesos[j] = Letra.pesos[j] + taxa * 
+		int respostasCertas = 0;
+		int respostasErradas = 0;
+		int ciclo = 0;
+		while (ciclo < 500) {
+			respostasCertas = 0;
+			respostasErradas = 0;
+			ciclo++;
+			System.out.println("Ciclo: " + ciclo);
+			for(int h = 0; h < tiposDeLetras; h++) {
+				for(int i = 0; i < qtLetras; i++) {
+					int erro = achaErro(rede(testaLinha(letras[i])), letras[i].getSaida()[h]);
+					//System.out.println(testaLinha(letras[i]));
+					/*System.out.println("Testando se " + letras[i].getNome() + letras[i].getNumero()
+							+ " é lido como um " + ordemDeLetras[h] + ", resultado = "
+							+ testaLinha(letras[i]) + " , padronizado para " + rede(testaLinha(letras[i]))
+							+ ", esperava-se " + letras[i].getSaida()[h] + " erro foi "+ erro);
+					System.out.println(mostraLinha(i+1, letras[i], letras[i].getSaida()));*/
+					//System.out.println(letras[i].getSaida()[h]);
+					
+					if(erro == 0) {
+						respostasCertas++;
+						//System.out.println("sucesso para letra " + letras[i].getNome() + letras[i].getNumero());
+					} else {
+						respostasErradas++;
+						//System.out.println("fracasso");
+						for(int j = 0; j < tamanhoLetra; j++) {
+							for(Letra l: letras) {
+								//alterar os pesos de todos os A ao mesmo tempo, ou todos os J, etc.
+								if(l.getNome() == letras[i].getNome())
+									l.pesos[j] = l.pesos[j] + bias + taxa * mediaDeAmostras(l.getNome())[j] * (-erro);
+							}
+						}
 					}
 				}
 			}
+			System.out.println("Certas: " + respostasCertas);
+			System.out.println("Erradas: " + respostasErradas);
+			System.out.println("");
 		}
 		
 		
+		for(Letra l: letras) {
+			System.out.println(mostraPesos(l));
+		}
 	}
 
+	//método que combina as variações da mesma letra, para que pixels tenham representação variada nas
+	//mudanças de valor dos pesos
+	public static double[] mediaDeAmostras(char c) {
+		double[] resultado = new double[tamanhoLetra];
+		for(Letra l: letras) {
+			for(int i = 0; i < tamanhoLetra; i++) {
+				if(l.getNome() == c)
+					resultado[i] += (double) l.getAmostras()[i] / variantesDeLetras;
+			}
+		}
+		return resultado;
+	}
+	
+	public static int achaErro(int resultado, int esperado) {
+		if(resultado > esperado)
+			return 1;
+		else if (resultado < esperado)
+			return -1;
+		else
+			return 0;
+	}
+	
 	//public static boolean isPesosCorretos(Letra letra, int resultadoDaFuncaoRede) {
 	//	
 	//}
 	
 	public static int rede(double saida) {
-		if(saida > 0.0)
+		if(saida > 1.0)
 			return 1;
-		else
+		else if (saida < 1.0)
 			return -1;
+		else
+			return 0;
 	}
 	
 	public static double testaLinha(Letra letra) {
@@ -96,13 +144,23 @@ public class Main {
 		return soma;
 	}
 	
+	public static String mostraPesos(Letra letra) {
+		String resultado = letra.getNome() + "-" + letra.getNumero() + " | ";
+		DecimalFormat format = new DecimalFormat("#.000");
+		for(int i = 0; i < letra.getAmostras().length; i++) {
+			resultado += String.format("%6s", format.format(letra.getPesos()[i]));
+			resultado += " ";
+		}
+		return resultado;
+	}
+	
 	public static String mostraLinha(int linha, Letra letra, int[] saida) {
 		String resultado = String.format("%2s", linha);
 		resultado += " |";
 		resultado += letra.getNome() + "-" + letra.getNumero() + "| ";
-		DecimalFormat format = new DecimalFormat("#.00");
+		DecimalFormat format = new DecimalFormat("#.000");
 		for(int i = 0; i< letra.getAmostras().length; i++) {
-			resultado += String.format("%5s", format.format(letra.getAmostras()[i] * letra.getPesos()[i]));
+			resultado += String.format("%6s", format.format(letra.getAmostras()[i] * letra.getPesos()[i]));
 			resultado += " ";
 		}
 		resultado += "|";
