@@ -55,10 +55,19 @@ public class Main {
 		
 		
 		for(int i = 0; i < qtLetras; i++) {
+			System.out.println(testaLinha(letras[i]));
 			System.out.println(mostraLinha(i+1, letras[i], letras[i].getSaida()));
 		}
 	}
 
+	public static double testaLinha(Letra letra) {
+		double soma = 0.0;
+		for(int i = 0; i < letra.getAmostras().length; i++) {
+			soma += letra.getAmostras()[i] * letra.getPesos()[i];
+		}
+		return soma;
+	}
+	
 	public static String mostraLinha(int linha, Letra letra, int[] saida) {
 		String resultado = String.format("%2s", linha);
 		resultado += " |";

@@ -48,7 +48,7 @@ public class Letra {
 	public void inicializarPesos() {
 		this.pesos = new double[Main.tamanhoLetra];
 		for (int i = 0; i < Main.tamanhoLetra; i++) {
-			pesos[i] = 0.1;
+			pesos[i] = 0.0;
 		}
 	}
 	
