@@ -53,13 +53,39 @@ public class Main {
 //			//System.out.println(mostraLinha(i+1, z, letras[i].getSaida()));
 //		}
 		
-		
-		for(int i = 0; i < qtLetras; i++) {
-			System.out.println(testaLinha(letras[i]));
-			System.out.println(mostraLinha(i+1, letras[i], letras[i].getSaida()));
+		//for(int i = 0; i < qtLetras; i++) {
+		for(int h = 0; h < tiposDeLetras; h++) {
+			for(int i = 0; i < qtLetras; i++) {
+				//System.out.println(testaLinha(letras[i]));
+				System.out.println("Testando se " + letras[i].getNome() + letras[i].getNumero()
+						+ " é lido como um " + ordemDeLetras[h]);
+				System.out.println(mostraLinha(i+1, letras[i], letras[i].getSaida()));
+				//System.out.println(letras[i].getSaida()[h]);
+				if(rede(testaLinha(letras[i])) == letras[i].getSaida()[h]) {
+					//System.out.println("sucesso para letra " + letras[i].getNome() + letras[i].getNumero());
+				} else {
+					//System.out.println("fracasso");
+					for(int j = 0; j < tamanhoLetra; j++) {
+						//Letra.pesos[j] = Letra.pesos[j] + taxa * 
+					}
+				}
+			}
 		}
+		
+		
 	}
 
+	//public static boolean isPesosCorretos(Letra letra, int resultadoDaFuncaoRede) {
+	//	
+	//}
+	
+	public static int rede(double saida) {
+		if(saida > 0.0)
+			return 1;
+		else
+			return -1;
+	}
+	
 	public static double testaLinha(Letra letra) {
 		double soma = 0.0;
 		for(int i = 0; i < letra.getAmostras().length; i++) {
