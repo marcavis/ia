@@ -10,13 +10,13 @@ public class Main {
 	private static Letra[] letras = new Letra[tiposDeLetras * variantesDeLetras];
 	private static String[] ordemDeLetras = {"A", "B", "C", "D", "E", "J", "K"};
 	private static int[][] saida = 
-			{{1,0,0,0,0,0,0},
-			{0,1,0,0,0,0,0},
-			{0,0,1,0,0,0,0},
-			{0,0,0,1,0,0,0},
-			{0,0,0,0,1,0,0},
-			{0,0,0,0,0,1,0},
-			{0,0,0,0,0,0,1}};
+			{{1,-1,-1,-1,-1,-1,-1},
+			{-1,1,-1,-1,-1,-1,-1},
+			{-1,-1,1,-1,-1,-1,-1},
+			{-1,-1,-1,1,-1,-1,-1},
+			{-1,-1,-1,-1,1,-1,-1},
+			{-1,-1,-1,-1,-1,1,-1},
+			{-1,-1,-1,-1,-1,-1,1}};
 	public static int tamanhoLetra = 63;
 	private static double taxa = 0.1;
 
@@ -58,7 +58,9 @@ public class Main {
 			for(int i = 0; i < qtLetras; i++) {
 				//System.out.println(testaLinha(letras[i]));
 				System.out.println("Testando se " + letras[i].getNome() + letras[i].getNumero()
-						+ " é lido como um " + ordemDeLetras[h]);
+						+ " é lido como um " + ordemDeLetras[h] + ", resultado = "
+						+ testaLinha(letras[i]) + " , padronizado para " + rede(testaLinha(letras[i]))
+						+ ", esperava-se " + letras[i].getSaida()[h]);
 				System.out.println(mostraLinha(i+1, letras[i], letras[i].getSaida()));
 				//System.out.println(letras[i].getSaida()[h]);
 				if(rede(testaLinha(letras[i])) == letras[i].getSaida()[h]) {
