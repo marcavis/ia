@@ -9,6 +9,7 @@ public class Letra {
 	private int numero;
 	private char[] caracteres;
 	private int[] amostras;
+	private double[] pesos;
 	//como é representado um resultado no perceptron; por ex., {1,0,0,0,0,0,0} é a letra A
 	private int[] saida;
 	
@@ -41,6 +42,13 @@ public class Letra {
 				amostras[i] = 0;
 			}
 			//System.out.println(caracteres[i]+"-"+amostras[i]);
+		}
+	}
+	
+	public void inicializarPesos() {
+		this.pesos = new double[Main.tamanhoLetra];
+		for (int i = 0; i < Main.tamanhoLetra; i++) {
+			pesos[i] = 0.1;
 		}
 	}
 	
@@ -83,7 +91,13 @@ public class Letra {
 	public void setAmostras(int[] amostras) {
 		this.amostras = amostras;
 	}
-	
-	
+
+	public double[] getPesos() {
+		return pesos;
+	}
+
+	public void setPesos(double[] pesos) {
+		this.pesos = pesos;
+	}
 	
 }
