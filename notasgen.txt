@@ -1,0 +1,8 @@
+Algumas considerações:
+
+	Nesse problema, trabalhar com populações de 1000 cromossomos mostrou-se oportuno: cada geração é processada em 1 milissegundo ou menos, tanto através do método elitista quanto do método da roleta de seleção de cromossomos a serem cruzados. Com uma população desse tamanho, o algoritmo
+consistentemente chega na mesma resposta sempre que executado, sugerindo ser essa a solução ótima. ([15, 11, 9, 11, 15, 11, 15, 2, 15], com aptidão 27, para constar)
+	Ao se testar populações muito menores (menos de 100), o algoritmo corre o risco de encontrar soluções preferidas prematuramente, frequentemente chegando em soluções pouco satisfatórias, com aptidão próxima de 20. Nesses casos, a utilização de mutação para aumentar a variabilidade da população mostrava uma sutil melhora nos resultados obtidos.
+	O método elitista se mostrou superior ao método da roleta como aplicado para selecionar cromossomos nesse exercício, pois o segundo, além de ter processamento mais lento para cada geração, não era suficientemente tendencioso para escolher bons indivíduos, já que o intervalo de aptidões possíveis se mostrou curto, entre 1 e 27. Métodos alternativos de pontuação de elementos para utilização na roleta poderiam aproximar o desempenho desse método àquele obtido pelo método elitista.
+	
+ 
