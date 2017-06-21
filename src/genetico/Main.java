@@ -8,49 +8,75 @@ public class Main {
 	//Configurações
 	public static int tamPopulacao = 1000;
 	public static double taxaDeCrossover = 0.60;
-	public static boolean usarElitismo = true;
-	public static double probabilidadeDeMutacao = 0.005; //chance de um cromossomo sofrer alteracoes
+	public static boolean usarElitismo = false;
+	public static double probabilidadeDeMutacao = 0.000; //chance de um cromossomo sofrer alteracoes
 	public static double forcaDeMutacao = 0.1; //chance de algum bit específico ser alterado num cromossomo mutante
-	public static boolean usarLimiteDeGeracoes = false;
-	public static int limiteDeGeracoes = 100;
+	public static boolean usarLimiteDeGeracoes = true;
+	public static int limiteDeGeracoes = 500;
 	public static boolean usarLimiteDeEstabilizacao = true;
-	public static double limiteDeEstabilizacao = 0.005; //se em 5 gerações o fitness acumulado não crescer nessa proporção, parar
+	public static double limiteDeEstabilizacao = 0.005; //se em 10 gerações o fitness acumulado não crescer nessa proporção, parar
 	
 	public static int tamCromossomo = 36;
 	public static Random gerador = new Random();
 	
 	public static void main(String[] args) {
-		//int[] b = geraBotoes();
-		//int[][] populacao = new int[tamPopulacao][tamCromossomo];
 		ArrayList<int[]> populacao = new ArrayList<int[]>();
-		//int[] b = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
-		//System.out.println(mostraBotoes(b));
-		//System.out.println(aptidao(b));
 		for(int i = 0; i < tamPopulacao; i++) {
 			populacao.add(geraBotoes());
 		}
-		//for (int[] is : populacao) {
-		//	System.out.println(mostraBotoes(is) + " " + aptidao(is));
-		//}
+		
 		ArrayList<Integer> somasDeFitness = new ArrayList<Integer>();
-		int geracao = 0;
+		int geracao = 1;
+		int[] melhorCromossomo = populacao.get(0);
+		if(!usarLimiteDeEstabilizacao && !usarLimiteDeGeracoes) {
+			System.out.println("Habilite ao menos um método de limitar o processamento do programa!");
+			return;
+		}
+		
+		String cabecalho = "Resolvendo com populações de " + tamPopulacao + " cromossomos,\nusando o método "
+				+ (usarElitismo ? "elitista" : "da roleta") + " para selecionar pares para cruzamento,\n"
+				+ "usando taxa de crossover de " + (taxaDeCrossover*100) + "%,\n"
+				+ "taxa de mutação de " + (probabilidadeDeMutacao*100) + "%, alterando "
+				+ (forcaDeMutacao*tamCromossomo) + " genes em média.\n"
+				+ "O processamento está limitado a" + (usarLimiteDeGeracoes ? " " + limiteDeGeracoes + " gerações":"")
+				+ (usarLimiteDeGeracoes && usarLimiteDeEstabilizacao ? " ou":"")
+				+ (usarLimiteDeEstabilizacao ? " convergência de " + (limiteDeEstabilizacao*100) + "% nas 10 últimas gerações.":".");
+		System.out.println(cabecalho);
 		do {
 			if(usarElitismo) {
 				populacao = mutacao(crossoverElitista(populacao));
 			} else {
 				populacao = mutacao(crossoverRoleta(populacao));
 			}
+			populacao.sort((o1, o2) -> aptidao(o2).compareTo(aptidao(o1)));
+			
+			//Ordenando novamente a população em ordem decrescente de aptidão, o 1º elemento
+			//é o melhor da geração atual
+			if(aptidao(populacao.get(0)) > aptidao(melhorCromossomo)) {
+				melhorCromossomo = populacao.get(0);
+			}
+			
 			int[] aptidoes = new int[populacao.size()];
 			for(int i = 0; i < aptidoes.length; i++) {
 				aptidoes[i] = aptidao(populacao.get(i));
 			}
-			somasDeFitness.add(soma(aptidoes));
+			int somaDeAptidoesDestaPopulacao = soma(aptidoes);
+			System.out.println("Geração nº " + geracao + ": aptidão total: "
+					+ somaDeAptidoesDestaPopulacao + "\n\tmelhor elemento: "
+					+ mostraBotoes(melhorCromossomo) + ", com aptidão " + aptidao(melhorCromossomo));
+			
+			somasDeFitness.add(somaDeAptidoesDestaPopulacao);
 			geracao++;
-		} while ((usarLimiteDeGeracoes && geracao < limiteDeGeracoes) || 
-				(usarLimiteDeEstabilizacao && !detectarEstabilizacao(somasDeFitness, limiteDeEstabilizacao)));
-		//for (int[] is : populacao) {
-		//	System.out.println(aptidao(is));
-		//}
+		} while (!(
+					(usarLimiteDeGeracoes && geracao > limiteDeGeracoes) || 
+					(usarLimiteDeEstabilizacao && detectarEstabilizacao(somasDeFitness, limiteDeEstabilizacao))));
+		String melhorGenotipo = "";
+		for (int i : melhorCromossomo) {
+			melhorGenotipo += i;
+		}
+		System.out.println("Melhor cromossomo:\n"
+				+ "Genótipo: " + melhorGenotipo + "\n"
+				+ "Fenótipo: " + mostraBotoes(melhorCromossomo));
 	}
 	
 	public static int[] geraBotoes() {
@@ -66,14 +92,12 @@ public class Main {
 		for (int i = 0; i < pop.size(); i++) {
 			if(gerador.nextDouble() < probabilidadeDeMutacao) {
 				int[] mutante = pop.get(i);
-				//System.out.println(mostraBotoes(mutante));
 				for(int j = 0; j < mutante.length; j++) {
 					if(gerador.nextDouble() < forcaDeMutacao) {
 						mutante[j] = (mutante[j] + 1) % 2;
 					}
 				}
 				pop.set(i, mutante);
-				//System.out.println(mostraBotoes(mutante));
 			}
 		}
 		return pop;
@@ -87,15 +111,15 @@ public class Main {
 		}
 		for(int i = 0; i < pop.size();) {
 			if(gerador.nextDouble() < taxaDeCrossover) {
-				int[] pai1 = pop.get(escolherRoleta(aptidoes, gerador.nextInt(soma(aptidoes))));
-				int[] pai2 = pop.get(escolherRoleta(aptidoes, gerador.nextInt(soma(aptidoes))));
+				int somaDeAptidoes = soma(aptidoes);
+				int[] pai1 = pop.get(escolherRoleta(aptidoes, gerador.nextInt(somaDeAptidoes)));
+				int[] pai2 = pop.get(escolherRoleta(aptidoes, gerador.nextInt(somaDeAptidoes)));
 				int pontoDeCorte = 1 + gerador.nextInt(tamCromossomo - 2); //evitar pontos de corte nos extremos
 				novaPop.add(cruzar(pai1, pai2, pontoDeCorte));
 				novaPop.add(cruzar(pai2, pai1, pontoDeCorte));
 				i += 2;
 			}
 		}
-		System.out.println(soma(aptidoes));
 		return novaPop;
 	}
 	
@@ -103,10 +127,6 @@ public class Main {
 		ArrayList<int[]> novaPop = new ArrayList<int[]>();
 		//colocar os cromossomos em ordem decrescente de acordo com a função de aptidão
 		pop.sort((o1, o2) -> aptidao(o2).compareTo(aptidao(o1)));
-		int[] aptidoes = new int[pop.size()];
-		for(int i = 0; i < aptidoes.length; i++) {
-			aptidoes[i] = aptidao(pop.get(i));
-		}
 		for(int i = 0; i < pop.size();) {
 			if(gerador.nextDouble() < taxaDeCrossover) {
 				int[] pai1 = pop.get(gerador.nextInt(pop.size()/2));
@@ -117,7 +137,6 @@ public class Main {
 				i += 2;
 			}
 		}
-		System.out.println(soma(aptidoes));
 		return novaPop;
 	}
 	
@@ -172,13 +191,13 @@ public class Main {
 	}
 	
 	public static boolean detectarEstabilizacao(ArrayList<Integer> somasDeFitness, double limiteDeEstabilizacao) {
-		if(somasDeFitness.size() < 5) {
+		if(somasDeFitness.size() < 10) {
 			return false;
 		} else {
 			boolean resultado = true;
 			int quantidadeDeGeracoes = somasDeFitness.size();
 			int ultimo = somasDeFitness.get(quantidadeDeGeracoes - 1);
-			for(int i = 1; i <= 5; i++) {
+			for(int i = 1; i <= 10; i++) {
 				if(Math.abs(1 - (double) ultimo / somasDeFitness.get(quantidadeDeGeracoes - i) ) > limiteDeEstabilizacao) {
 					return false;
 				}
