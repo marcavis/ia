@@ -8,8 +8,8 @@ public class Main {
 	//Configurações
 	public static int tamPopulacao = 1000;
 	public static double taxaDeCrossover = 0.60;
-	public static boolean usarElitismo = false;
-	public static double probabilidadeDeMutacao = 0.000; //chance de um cromossomo sofrer alteracoes
+	public static boolean usarElitismo = true;
+	public static double probabilidadeDeMutacao = 0.010; //chance de um cromossomo sofrer alteracoes
 	public static double forcaDeMutacao = 0.1; //chance de algum bit específico ser alterado num cromossomo mutante
 	public static boolean usarLimiteDeGeracoes = true;
 	public static int limiteDeGeracoes = 500;
